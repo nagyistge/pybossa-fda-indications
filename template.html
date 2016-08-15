@@ -1,0 +1,94 @@
+<div class="row">
+  <div class="col-md-12">
+    <h1>Help us make OpenTrials better!</h1>
+    <h2>Which records on the right are related to the trial displayed?</h2>
+    <hr/>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6">
+    <div id="trial-wrapper">
+      <h3 class="trial-title"></h3>
+      <p class="trial-meta">
+        <b>ID: </b><span class="trial-id"></span> <br/>
+        <b>Gender: </b><span class="trial-gender"></span> <br/>
+        <b>URL: </b><span class="trial-url"></span>
+      </p>
+      <p class="trial-description">
+        <b>Description: <br/></b>
+        <span class="description"></span>
+      </p>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div id="answer">
+      <div id="records-wrapper">
+        <ul id="records-list"></ul>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-1 col-md-offset-10">
+    <button class="btn btn-primary btn-answer">Submit</button>
+  </div>
+</div>
+
+<script>
+  pybossa.taskLoaded(function(task, deferred) {
+    if (!$.isEmptyObject(task)) {
+      deferred.resolve(task);
+    } else {
+      deferred.resolve(task);
+    }
+  });
+
+  pybossa.presentTask(function(task, deferred) {
+    if (!$.isEmptyObject(task)) {
+
+      console.log(task);
+
+      $('h3.trial-title').text(task.info.title);
+      $('span.trial-id').text(task.info.id);
+      $('span.trial-gender').text(task.info.gender);
+      $('span.trial-url').text(task.info.url);
+      $('span.description').text(task.info.description);
+
+      $('ul#records-list').html('');
+
+      task.info.records.map(function(record) {
+        $('ul#records-list').append(
+          '<li><input type="checkbox" value="' + record.id + '"> &nbsp;'
+          + '<a href="'
+          + record.url + '">'
+          + record.source.name + ' / ' + record.id
+          + '</a></li>'
+        );
+      });
+
+      $('.btn-answer').off('click').on('click', function(evt) {
+          var answer = [];
+          $('input:checked').each(function() {
+            answer.push($(this).val());
+          });
+          if (typeof answer != 'undefined') {
+              //console.log(answer);
+              pybossa.saveTask(task.id, answer).done(function() {
+                  console.log('Task saved!', data);
+                  deferred.resolve();
+              });
+              $("#loading").fadeIn(500);
+              if ($("#disqus_thread").is(":visible")) {
+                  $('#disqus_thread').toggle();
+                  $('.btn-disqus').toggle();
+              }
+          }
+          else {
+              $("#error").show();
+          }
+      });
+    } else {
+      console.log('Entered else clause in presentTask()');
+    }
+  });
+
+  pybossa.run('opentrials');
+</script>

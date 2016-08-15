@@ -1,0 +1,6 @@
+{
+  "name": "OpenTrials records matcher",
+  "short_name": "opentrials",
+  "description": "Match records to trials for OpenTrials.net",
+  "question": "Do these records match the displayed trial?"
+}
