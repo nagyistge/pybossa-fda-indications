@@ -1,6 +1,6 @@
 {
-  "name": "OpenTrials records matcher",
+  "name": "OpenTrials drugs indications",
   "short_name": "opentrials",
-  "description": "Match records to trials for OpenTrials.net",
-  "question": "Do these records match the displayed trial?"
+  "description": "Extract drugs indications from PDFs for OpenTrials.net",
+  "question": "What are the indications mentioned in the displayed PDF?"
 }
