@@ -51,23 +51,24 @@
   <div id="answer" class="col-sm-8" style="text-align:center;">
 
     <ul class="nav nav-tabs" role="tablist" id="tabs-container">
-      <li role="presentation" class="active"><a href="#letter" aria-controls="letter" role="tab" data-toggle="tab">Letter</a></li>
+      <!-- <li role="presentation" class="active"><a href="#letter" aria-controls="default" role="tab" data-toggle="tab">Default</a></li> -->
     </ul>
 
     <div class="tab-content" id="tabs-content-container">
-      <div role="tabpanel" class="tab-pane active" id="letter">
+
+      <!-- <div role="tabpanel" class="tab-pane active" id="default">
         <div class="btn-group-md" style="padding-bottom:5px;">
-          <button id="prev" class="btn btn-primary btn-navigate disabled" value="prev"><i class="fa fa-arrow-left"></i></button>
+          <button class="btn btn-primary btn-navigate btn-prev disabled" value="prev"><i class="fa fa-arrow-left"></i></button>
           <button class="btn btn-primary btn-zoom" value=0>1:1</button>
           <button class="btn btn-primary btn-zoom" value=1><i class="fa fa-search-plus"></i></button>
           <button class="btn btn-primary btn-zoom" value=-1><i class="fa fa-search-minus"></i></button>
-          <button id="next" class="btn btn-primary btn-navigate" value="next"><i class="fa fa-arrow-right"></i></button>
+          <button class="btn btn-primary btn-navigate btn-next" value="next"><i class="fa fa-arrow-right"></i></button>
         </div>
-        <div id="pages" style="margin-top:2%;">
-          <p>Page <span id="currentPage">#</span> of <span id="totalPages">#</span></p>
+        <div class="pages" style="margin-top:2%;">
+          <p>Page <span class="currentPage">#</span> of <span class="totalPages">#</span></p>
         </div>
       </div>
-
+      -->
     </div>
 
   </div>
@@ -100,212 +101,248 @@
 <script src="/static/js/pdf/pdf.js" type="text/javascript"></script>
 
 <script type="text/javascript">
- (function() {
-   //
-   // Disable workers to avoid yet another cross-origin issue (workers need the URL of
-   // the script to be loaded, and currently do not allow cross-origin scripts)
-   //
-   PDFJS.disableWorker = true;
+(function() {
+  //
+  // Disable workers to avoid yet another cross-origin issue (workers need the URL of
+  // the script to be loaded, and currently do not allow cross-origin scripts)
+  //
+  PDFJS.disableWorker = true;
 
-   //
-   // Get page info from document, resize canvas accordingly, and render page
-   //
-   function renderPage(task) {
-     // Using promise to fetch the page
-     task.pdfDoc.getPage(task.pageNum).then(function(page) {
-       var viewport = page.getViewport(task.scale);
-       task.canvas.height = viewport.height;
-       task.canvas.width = viewport.width;
+  //
+  // Get page info from document, resize canvas accordingly, and render page
+  //
+  function renderPage(task) {
+    // Using promise to fetch the page
+    task.pdfDocs.map(function(doc, id){
+      task.pdfDoc.getPage(task.pageNum).then(function(page) {
+        var viewport = page.getViewport(task.scale);
+        task.canvas.height = viewport.height;
+        task.canvas.width = viewport.width;
 
-       // Render PDF page into canvas context
-       var renderContext = {
-         canvasContext: task.ctx,
-         viewport: viewport
-       };
-       page.render(renderContext);
-     });
-   }
+        // Render PDF page into canvas context
+        var renderContext = {
+          canvasContext: task.ctx[id],
+          viewport: viewport
+        };
+        page.render(renderContext);
+      });
+    });
+  }
 
-   function zoom(task, v) {
-     task.pdfDoc.getPage(task.pageNum).then(function(page){
-       if (v === 1) {
-         task.scale = task.scale + 0.1;
-         if (task.scale >= 2) {
-           task.scale = 2;
-         }
-       }
-       if (v === -1) {
-         task.scale = task.scale - 0.1;
-         if (task.scale <= 0) {
-           task.scale = 0.1;
-         }
-       }
-       if (v === 0) {
-         task.scale = 0.8;
-       }
-       var viewport = page.getViewport(task.scale + 0.1);
-       task.canvas.height = viewport.height;
-       task.canvas.width = viewport.width;
-
-       // Render PDF page into canvas context
-       var renderContext = {
-         canvasContext: task.ctx,
-         viewport: viewport
-       };
-       page.render(renderContext);
-     });
-
-   }
-
-   function enableDisabledNavButtons(task){
-     if (task.pageNum === 1) {
-       $("#next").removeClass("disabled");
-       $("#prev").addClass("disabled");
-     }
-     else if (task.pageNum === task.pdfDoc.numPages) {
-       $("#prev").removeClass("disabled");
-       $("#next").addClass("disabled");
-     }
-     else {
-       $("#next").removeClass("disabled");
-       $("#prev").removeClass("disabled");
-     }
-   }
-
-   function goPreviousPage(task) {
-     if (task.pageNum <= 1)
-       return;
-     task.pageNum--;
-     renderPage(task);
-     $("#currentPage").text(task.pageNum);
-     enableDisabledNavButtons(task);
-   }
-
-   function goNextPage(task) {
-     if (task.pageNum >= task.pdfDoc.numPages)
-       return;
-     task.pageNum++;
-     renderPage(task);
-     $("#currentPage").text(task.pageNum);
-     enableDisabledNavButtons(task);
-   }
-
-   function loadUserProgress() {
-     pybossa.userProgress('opentrials').done(function(data){
-       var pct = Math.round((data.done*100)/data.total);
-       $("#progress").css("width", pct.toString() +"%");
-       $("#progress").attr("title", pct.toString() + "% completed!");
-       $("#progress").tooltip({'placement': 'left'}); 
-       $("#total").text(data.total);
-       $("#done").text(data.done);
-     });
-   }
-
-   function showPaginationOptions(task) {
-     if (task.pagination) {
-       $("#currentPage").text(task.pageNum);
-       $("#totalPages").text(task.pdfDoc.numPages);
-       $(".btn-navigate").show();
-       $("#pages").show();
-     }
-     else {
-       $(".btn-navigate").hide();
-       $("#pages").hide();
-     }
-   }
-
-   pybossa.taskLoaded(function(task, deferred){
-     if ( !$.isEmptyObject(task) ) {
-       if (task.state=='completed') {
-         $('#answer').hide();
-         $('#taskcompleted').show();
-       }
-       // NOTE: 
-       // Modifying the URL below to another server will likely *NOT* work. Because of browser
-       // security restrictions, we have to use a file server with special headers
-       // (CORS) - most servers don't support cross-origin browser requests.
-       // Asynchronously download PDF as an ArrayBuffer
-       var canvas = $("<canvas/>", {"id": "canvas_" + task.id});
-       canvas.css("border", "1px solid black");
-       var viewport = $("<div/>", {"id": "viewport_" + task.id});
-       viewport.css("width",  "100%");
-       viewport.css("height", "100%");
-       viewport.css("overflow", "auto");
-       viewport.css("display", "none");
-       viewport.append(canvas);
-       $("#letter").append(viewport);
-       
-       $('#viewport_' + task.id).dragscrollable({dragSelector:'#canvas_' + task.id});
-       task.canvas = document.getElementById('canvas_' + task.id);
-       task.ctx = document.getElementById("canvas_" + task.id).getContext('2d');
-       task.scale = 0.9;
-       task.pagination = (task.info.page === undefined);
-       task.pageNum = task.info.page || 1;
-
-       console.log(task);
-
-       task.info.documents = JSON.parse(task.info.documents);
-       
-        if (task.info.documents.length > 0) {
-          task.info.documents.map(function(doc) {
-            doc.urls.map(function(url){
-              var pdfURL = url.split('/').pop(); // Hack to overcome 3rd party CORS restrictions
-              pdfURL = 'http://oz.tenders.exposed/opentrials/indications_docs/' + pdfURL;
-              PDFJS.getDocument(pdfURL).then(function getPdfHelloWorld(_pdfDoc) {
-                task.pdfDoc = _pdfDoc;
-                deferred.resolve(task);
-              });
-            });
-          });
-        } else {
-          deferred.resolve(task);
+  function zoom(task, v) {
+    task.pdfDoc.getPage(task.pageNum).then(function(page){
+      if (v === 1) {
+        task.scale = task.scale + 0.1;
+        if (task.scale >= 2) {
+          task.scale = 2;
         }
-     } else {
-       deferred.resolve(task);
-     }
+      }
+      if (v === -1) {
+        task.scale = task.scale - 0.1;
+        if (task.scale <= 0) {
+          task.scale = 0.1;
+        }
+      }
+      if (v === 0) {
+        task.scale = 0.8;
+      }
+      var viewport = page.getViewport(task.scale + 0.1);
+      task.canvas.height = viewport.height;
+      task.canvas.width = viewport.width;
 
-   });
+      // Render PDF page into canvas context
+      var renderContext = {
+        canvasContext: task.ctx,
+        viewport: viewport
+      };
+      page.render(renderContext);
+    });
 
-   pybossa.presentTask(function(task, deferred){
-     if ( !$.isEmptyObject(task) ) {
-       loadUserProgress();
-       $("textarea#text").val('');
-       $("#viewport_" + task.id).show();
-       showPaginationOptions(task);
-       renderPage(task);
-       $("#question h1").text(task.info.question);
-       $("#task-id").text(task.id);
-       $("#loading").hide();
-       enableDisabledNavButtons(task);
-       $(".btn-zoom").off('click').on('click', function(evt){
-         zoom(task, parseInt($(this).attr("value")));
-       });
-       $(".btn-navigate").off('click').on('click', function(evt){
-         if ($(this).attr("value") === "next") {
-           goNextPage(task);
-           return;
+  }
+
+  function enableDisabledNavButtons(task){
+    if (task.pageNum === 1) {
+      $(".btn-next").removeClass("disabled");
+      $(".btn-prev").addClass("disabled");
+    }
+    else if (task.pageNum === task.pdfDoc.numPages) {
+      $(".btn-prev").removeClass("disabled");
+      $(".btn-next").addClass("disabled");
+    }
+    else {
+      $(".btn-next").removeClass("disabled");
+      $(".btn-prev").removeClass("disabled");
+    }
+  }
+
+  function goPreviousPage(task) {
+    if (task.pageNum <= 1)
+      return;
+    task.pageNum--;
+    renderPage(task);
+    $(".currentPage").text(task.pageNum);
+    enableDisabledNavButtons(task);
+  }
+
+  function goNextPage(task) {
+    if (task.pageNum >= task.pdfDoc.numPages)
+      return;
+    task.pageNum++;
+    renderPage(task);
+    $(".currentPage").text(task.pageNum);
+    enableDisabledNavButtons(task);
+  }
+
+  function loadUserProgress() {
+    pybossa.userProgress('opentrials').done(function(data){
+      var pct = Math.round((data.done*100)/data.total);
+      $("#progress").css("width", pct.toString() +"%");
+      $("#progress").attr("title", pct.toString() + "% completed!");
+      $("#progress").tooltip({'placement': 'left'}); 
+      $("#total").text(data.total);
+      $("#done").text(data.done);
+    });
+  }
+
+  function showPaginationOptions(task) {
+    if (task.pagination) {
+      $(".currentPage").text(task.pageNum);
+      $(".totalPages").text(task.pdfDoc.numPages);
+      $(".btn-navigate").show();
+      $(".pages").show();
+    }
+    else {
+      $(".btn-navigate").hide();
+      $(".pages").hide();
+    }
+  }
+
+  pybossa.taskLoaded(function(task, deferred){
+    console.log('enter taskLoaded()');
+    if ( !$.isEmptyObject(task) ) {
+       console.log('Object is not empty, moving on...');
+      if (task.state=='completed') {
+        $('#answer').hide();
+        $('#taskcompleted').show();
+      }
+
+      task.info.documents = JSON.parse(task.info.documents);
+      task.pdfDocs = {};
+      task.ctxs = {};
+
+      console.log(task);
+
+       console.log('There are multiple documents in here...');
+       for (var i=0; i < task.info.documents.length; i++) {
+         console.log('Iterating through documents, position ', i)
+         for (var j=0; j < task.info.documents[i].urls.length; j++) {
+           console.log('Iterating through URLs, position ', j)
+           var id = '' + task.id + '-' + task.info.documents[i].name.toLowerCase() + '-' + j;
+           var tabButton = '<li role="presentation" class="active">'
+                             + '<a href="#'+id+'" aria-controls="'+id+'" role="tab" data-toggle="tab" id="btn-'+id+'">'+task.info.documents[i].name+' '+j+'</a></li>';
+           var tabContent = '<div role="tabpanel" class="tab-pane active" id="'+id+'">'
+                               + '<div class="btn-group-md" style="padding-bottom:5px;">'
+                                 + '<button class="btn btn-primary btn-navigate btn-prev disabled" value="prev"><i class="fa fa-arrow-left"></i></button>'
+                                 + '<button class="btn btn-primary btn-zoom" value=0>1:1</button>'
+                                 + '<button class="btn btn-primary btn-zoom" value=1><i class="fa fa-search-plus"></i></button>'
+                                 + '<button class="btn btn-primary btn-zoom" value=-1><i class="fa fa-search-minus"></i></button>'
+                                 + '<button class="btn btn-primary btn-navigate btn-next" value="next"><i class="fa fa-arrow-right"></i></button>'
+                               + '</div>'
+                               + '<div class="pages" style="margin-top:2%;">'
+                                 + '<p>Page <span class="currentPage">#</span> of <span class="totalPages">#</span></p>'
+                               + '</div>'
+                             + '</div>';
+           $('#tabs-container').append(tabButton);
+           console.log('Creating the DOM pieces we need');
+           $('#tabs-content-container').append(tabContent);
+
+           $('a#btn-'+id).click(function(){
+             task.pdfDoc = task.pdfDocs[$(this).attr('id').replace('btn-', '')];
+             task.ctx = task.ctxs[$(this).attr('id').replace('btn-', '')];
+           });
+
+           var canvas = $("<canvas/>", {"id": "canvas_" + id});
+           canvas.css("border", "1px solid black");
+           var viewport = $("<div/>", {"id": "viewport_" + id});
+           viewport.css("width",  "100%");
+           viewport.css("height", "100%");
+           viewport.css("overflow", "auto");
+           viewport.css("display", "none");
+           viewport.append(canvas);
+           console.log('Appending the canvas');
+           $(".tab-pane.active").append(viewport);
+
+           $('#viewport_' + id).dragscrollable({dragSelector:'#canvas_' + id});
+           task.canvas = document.getElementById('canvas_' + id);
+           task.ctxs[id] = document.getElementById("canvas_" + id).getContext('2d');
+           task.scale = 0.9;
+           task.pagination = (task.info.page === undefined);
+           task.pageNum = task.info.page || 1;
+
+           var url = task.info.documents[i].urls[j];
+           var pdfFile = url.split('/').pop();
+           var pdfURL = 'http://oz.tenders.exposed/opentrials/indications_docs/' + pdfFile;
+           PDFJS.getDocument(pdfURL).then(function(_pdfDoc) {
+             console.log('Creating the PDF.js doc out of ' + pdfURL);
+             task.pdfDocs[id] = _pdfDoc;
+             if (i == 0 && j == 0) {
+               task.pdfDoc = task.pdfDocs[id];
+               task.ctx = task.ctxs[id];
+               console.log('Successfully set the current document to ', task.pdfDocs[id]);
+               console.log(task);
+             }
+           });
          }
-         if ($(this).attr("value") === "prev") {
-           goPreviousPage(task);
-           return;
-         }
-       });
-       $(".btn-submit").off('click').on('click', function(){
-         var answer = $("textarea#text").val();
-         $("#viewport_" + task.id).hide();
-         pybossa.saveTask(task.id, answer).done(function(data){
-           deferred.resolve();
-           $("#success").fadeIn();
-           setTimeout(function() { $("#success").fadeOut() }, 2000);
-         })
-       });
-     }
-     else {
-       $(".skeleton").hide();
-       $("#finish").fadeIn();
-     }
-   });
+       }
 
-   pybossa.run('opentrials');
- })();
+       console.log('Getting out of here');
+    } else {
+     console.log('Object is empty, resolving...');
+      deferred.resolve(task);
+    }
+
+  });
+
+  pybossa.presentTask(function(task, deferred){
+    if ( !$.isEmptyObject(task) ) {
+      loadUserProgress();
+      $("textarea#text").val('');
+      $("#viewport_" + task.id).show();
+      showPaginationOptions(task);
+      renderPage(task);
+      $("#question h1").text(task.info.question);
+      $("#task-id").text(task.id);
+      $("#loading").hide();
+      enableDisabledNavButtons(task);
+      $(".btn-zoom").off('click').on('click', function(evt){
+        zoom(task, parseInt($(this).attr("value")));
+      });
+      $(".btn-navigate").off('click').on('click', function(evt){
+        if ($(this).attr("value") === "next") {
+          goNextPage(task);
+          return;
+        }
+        if ($(this).attr("value") === "prev") {
+          goPreviousPage(task);
+          return;
+        }
+      });
+      $(".btn-submit").off('click').on('click', function(){
+        var answer = $("textarea#text").val();
+        $("#viewport_" + task.id).hide();
+        pybossa.saveTask(task.id, answer).done(function(data){
+          deferred.resolve();
+          $("#success").fadeIn();
+          setTimeout(function() { $("#success").fadeOut() }, 2000);
+        })
+      });
+    }
+    else {
+      $(".skeleton").hide();
+      $("#finish").fadeIn();
+    }
+  });
+
+  pybossa.run('opentrials');
+})();
 </script>
