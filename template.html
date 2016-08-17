@@ -50,12 +50,11 @@
   <!-- Answer buttons -->
   <div id="answer" class="col-sm-8" style="text-align:center;">
 
-    <ul class="nav nav-tabs" role="tablist">
+    <ul class="nav nav-tabs" role="tablist" id="tabs-container">
       <li role="presentation" class="active"><a href="#letter" aria-controls="letter" role="tab" data-toggle="tab">Letter</a></li>
-      <li role="presentation"><a href="#label" aria-controls="label" role="tab" data-toggle="tab">Label</a></li>
     </ul>
 
-    <div class="tab-content">
+    <div class="tab-content" id="tabs-content-container">
       <div role="tabpanel" class="tab-pane active" id="letter">
         <div class="btn-group-md" style="padding-bottom:5px;">
           <button id="prev" class="btn btn-primary btn-navigate disabled" value="prev"><i class="fa fa-arrow-left"></i></button>
@@ -69,8 +68,6 @@
         </div>
       </div>
 
-      <div role="tabpanel" class="tab-pane" id="label">
-      </div>
     </div>
 
   </div>
@@ -249,14 +246,20 @@
 
        task.info.documents = JSON.parse(task.info.documents);
        
-       if (task.info.documents.length > 0) {
-         PDFJS.getDocument(task.info.documents[0].urls[0]).then(function getPdfHelloWorld(_pdfDoc) {
-           task.pdfDoc = _pdfDoc;
-           deferred.resolve(task);
-         });
-       } else {
-         deferred.resolve(task);
-       }
+        if (task.info.documents.length > 0) {
+          task.info.documents.map(function(doc) {
+            doc.urls.map(function(url){
+              var pdfURL = url.split('/').pop(); // Hack to overcome 3rd party CORS restrictions
+              pdfURL = 'http://oz.tenders.exposed/opentrials/indications_docs/' + pdfURL;
+              PDFJS.getDocument(pdfURL).then(function getPdfHelloWorld(_pdfDoc) {
+                task.pdfDoc = _pdfDoc;
+                deferred.resolve(task);
+              });
+            });
+          });
+        } else {
+          deferred.resolve(task);
+        }
      } else {
        deferred.resolve(task);
      }
