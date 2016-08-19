@@ -78,12 +78,14 @@
     <div class="progress progress-striped">
       <div id="progress" rel="tooltip" title="#" class="progress-bar" style="width: 0%;" role="progressbar"></div>
     </div>
+    <hr>
     <div>
-      <h5>Write here the transcription</h5>
+      <h5>Write here the indication(s) found in the document(s), one per line</h5>
       <form class="form-inline">
         <textarea id="text" rows="10" style="width:100%;"></textarea>
+        <small><i>Hint: it might be easier to figure out the modified indications from the letter document, if we have it</i></small>
       </form>
-      <button class="btn btn-submit">Submit transcription!</button>
+      <button class="btn btn-submit">Submit</button>
     </div>
 
   </div>
@@ -245,7 +247,8 @@
       viewport.css("display", "none");
       viewport.append(canvas);
       $("#document-container").append(viewport);
-      
+
+
       $('#viewport_' + task.id).dragscrollable({dragSelector:'#canvas_' + task.id});
       task.canvas = document.getElementById('canvas_' + task.id);
       task.ctx = document.getElementById("canvas_" + task.id).getContext('2d');
@@ -273,6 +276,7 @@
     if ( !$.isEmptyObject(task) ) {
       loadUserProgress();
 
+      $('#documents-list').html('');
       for (var i=0; i<task.info.documents.length; i++) {
         var doc = task.info.documents[i];
         var listItem = '<option value="'+doc.urls[0]+'">'+doc.name+'</option>';
