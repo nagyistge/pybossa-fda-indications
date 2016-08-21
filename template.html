@@ -41,7 +41,8 @@
 <div class="row skeleton">
   <div id="question" class="col-md-12">
     <h1>Transcribe the indications mentioned in the rendered PDFs</h1>
-    <span class="label label-info"><i class="fa fa-bullhorn"></i> Important</span> <strong>If there are multiple indications to be extracted from the text, please write them one per line.</strong>
+    <span class="label label-info"><i class="fa fa-bullhorn"></i> Important</span>
+    <strong>If there are multiple indications to be extracted from the text, please write them one per line.</strong>
     <hr>
   </div>
 </div>
@@ -82,7 +83,12 @@
     <div>
       <h5>Write here the indication(s) found in the document(s), one per line</h5>
       <form class="form-inline">
-        <textarea id="text" rows="10" style="width:100%;"></textarea>
+        <input type="hidden" id="hidden-document">
+        <input type="hidden" id="hidden-page">
+        <fieldset id="indications">
+          <input type="text" name="indication" class="input-indication"><br>
+        </fieldset>
+        <a class="btn btn-default btn-xs add-indication">Add another</a><br>
         <small><i>Hint: it might be easier to figure out the modified indications from the letter document, if we have it</i></small>
       </form>
       <button class="btn btn-submit">Submit</button>
@@ -222,6 +228,7 @@
 
   function loadPdf(pdfURL, task, deferred) {
     PDFJS.getDocument(pdfURL).then(function getPdfHelloWorld(_pdfDoc) {
+      task.pdfURL = pdfURL;
       task.pdfDoc = _pdfDoc;
       if (typeof deferred !== 'undefined') {
         deferred.resolve(task);
@@ -288,7 +295,10 @@
         loadPdf(url, task);
       });
 
-      $("textarea#text").val('');
+      $(".additional-indication").remove();
+      $(".remove-indication").remove();
+      $(".input-indication").val('');
+
       $("#viewport_" + task.id).show();
       showPaginationOptions(task);
       renderPage(task);
@@ -309,8 +319,26 @@
           return;
         }
       });
+      $("fieldset#indications").on('click', '.remove-indication', function(){
+        $(this).prev().remove();
+        $(this).next().remove();
+        $(this).remove();
+      });
+      $('.add-indication').click(function(){
+        var newField = '<input type="text" name="indication" class="input-indication additional-indication">'
+                     + '<a class="btn btn-default btn-xs remove-indication">Remove</a><br class="additional-indication">' ;
+        $('fieldset#indications').append(newField);
+      });
       $(".btn-submit").off('click').on('click', function(){
-        var answer = $("textarea#text").val();
+        var indications = [];
+        $('input[name^="indication"]').each(function() {
+          indications.push($(this).val());
+        });
+        var answer = {
+            indications: indications,
+            document: task.pdfURL,
+            page: task.pageNum
+        };
         $("#viewport_" + task.id).hide();
         pybossa.saveTask(task.id, answer).done(function(data){
           deferred.resolve();
