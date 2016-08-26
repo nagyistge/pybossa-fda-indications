@@ -94,7 +94,7 @@
         <input type="hidden" id="hidden-document">
         <input type="hidden" id="hidden-page">
         <fieldset id="indications">
-          <input type="text" name="indication" class="form-control input-indication"><br>
+          <div><input type="text" name="indication" class="form-control input-indication"><br></div>
         </fieldset>
         <a class="btn btn-default btn-xs add-indication">Add another</a><br>
       </form>
@@ -273,8 +273,6 @@
       task.pagination = (task.info.page === undefined);
       task.pageNum = task.info.page || 1;
 
-      console.log(task);
-
       var firstDocuments = ['letter', 'label'];
       var documentsUnordered = JSON.parse(task.info.documents);
       task.info.documents = [];
@@ -309,6 +307,8 @@
     if ( !$.isEmptyObject(task) ) {
       loadUserProgress();
 
+      task.indications = [];
+
       $('#documents-list').html('');
       for (var i=0; i<task.info.documents.length; i++) {
         var doc = task.info.documents[i];
@@ -317,7 +317,8 @@
       }
 
       $('#documents-list').change(function(){
-        var url = alterURL($(this).val());
+        task.pdfSource = $(this).val();
+        var url = alterURL(task.pdfSource);
         loadPdf(url, task);
       });
 
@@ -346,9 +347,19 @@
         }
       });
       $("fieldset#indications").on('click', '.remove-indication', function(){
-        $(this).prev().remove();
-        $(this).next().remove();
-        $(this).remove();
+        var index = $(this).parent('div').index();
+        task.indications.splice(index ,1);
+        $(this).parent('div').remove();
+        console.log('Indications changed: ', task.indications);
+      });
+      $("fieldset#indications").on('change', '.input-indication', function(){
+        var index = $(this).parent('div').index();
+        task.indications[index] = {
+          value: $(this).val(),
+          document: task.pdfSource,
+          page: task.pageNum
+        };
+        console.log('Indications changed: ', task.indications);
       });
       $("fieldset#indications").on('keyup', '.input-indication', function(){
         if( $(this).val() ) {
@@ -358,8 +369,8 @@
         }
       });
       $('.add-indication').click(function(){
-        var newField = '<input type="text" name="indication" class="form-control input-indication additional-indication">'
-                     + '<a class="btn btn-default btn-xs remove-indication">Remove</a><br class="additional-indication">' ;
+        var newField = '<div><input type="text" name="indication" class="form-control input-indication additional-indication">'
+                     + '<a class="btn btn-default remove-indication">Remove</a><br class="additional-indication"></div>' ;
         $('fieldset#indications').append(newField);
       });
       $(".btn-skip").off('click').on('click', function(){
@@ -377,14 +388,8 @@
         })
       });
       $(".btn-submit").off('click').on('click', function(){
-        var indications = [];
-        $('input[name^="indication"]').each(function() {
-          indications.push($(this).val());
-        });
         var answer = {
-            indications: indications,
-            document: task.pdfURL,
-            page: task.pageNum
+            indications: task.indications
         };
         $("#viewport_" + task.id).hide();
         pybossa.saveTask(task.id, answer).done(function(data){
