@@ -40,9 +40,9 @@
 
 <div class="row skeleton">
   <div id="question" class="col-md-12">
-    <h1>Transcribe the indications mentioned in the rendered PDFs</h1>
+    <h1>Transcribe the indications mentioned in the PDFs</h1>
     <span class="label label-info"><i class="fa fa-bullhorn"></i> Important</span>
-    <strong>If there are multiple indications to be extracted from the text, please write them one per line.</strong>
+    <strong>If there are multiple indications in the PDF document, please write one indication per line.</strong>
     <hr>
   </div>
 </div>
@@ -51,8 +51,12 @@
   <!-- Answer buttons -->
   <div id="answer" class="col-sm-8" style="text-align:center;">
 
-    <select id="documents-list" class="pull-right">
-    </select>
+    <div class="row">
+      <div class="col-sm-9">&nbsp;</div>
+      <div class="col-sm-3">
+        <select class="form-control pull-right" id="documents-list"></select>
+      </div>
+    </div>
     <hr>
 
     <!-- <div class="tab-content" id="tabs-content-container"> -->
@@ -81,17 +85,23 @@
     </div>
     <hr>
     <div>
-      <h5>Write here the indication(s) found in the document(s), one per line</h5>
+      <h5>Please write only one indication per line.</h5>
+      <h5>If there are multiple indications press "Add another" to add subsequent indicationss.</h5>
+      <h5>To delete an item, use the "Remove" button.</h5>
+      <small><i>Hint: We recommend finding new indications mentioned in the letter document, then compare your findings with with the value(s) in the label.</i></small>
+      <hr>
       <form class="form-inline">
         <input type="hidden" id="hidden-document">
         <input type="hidden" id="hidden-page">
         <fieldset id="indications">
-          <input type="text" name="indication" class="input-indication"><br>
+          <input type="text" name="indication" class="form-control input-indication"><br>
         </fieldset>
         <a class="btn btn-default btn-xs add-indication">Add another</a><br>
-        <small><i>Hint: it might be easier to figure out the modified indications from the letter document, if we have it</i></small>
       </form>
-      <button class="btn btn-submit">Submit</button>
+      <p class="text-center">
+        <button class="btn btn-link btn-skip"><small>Skip this task</small></button> <br>
+        <button class="btn btn-submit" disabled>Submit</button>
+      </p>
     </div>
 
   </div>
@@ -265,8 +275,24 @@
 
       console.log(task);
 
-      task.info.documents = JSON.parse(task.info.documents);
-      
+      var firstDocuments = ['letter', 'label'];
+      var documentsUnordered = JSON.parse(task.info.documents);
+      task.info.documents = [];
+
+      firstDocuments.map(function(v) {
+        documentsUnordered.map(function(doc, index) {
+          if (doc.name.toLowerCase() == v) {
+            task.info.documents.push(doc);
+            documentsUnordered.splice(index, 1);
+            return;
+          }
+        });
+      });
+
+      documentsUnordered.map(function(doc, index) {
+        task.info.documents.push(doc);
+      });
+
        if (task.info.documents.length > 0) {
          pdfURL = alterURL(task.info.documents[0].urls[0]);
          loadPdf(pdfURL, task, deferred);
@@ -324,10 +350,31 @@
         $(this).next().remove();
         $(this).remove();
       });
+      $("fieldset#indications").on('keyup', '.input-indication', function(){
+        if( $(this).val() ) {
+          $('.btn-submit').prop('disabled', false);
+        } else {
+          $('.btn-submit').prop('disabled', true);
+        }
+      });
       $('.add-indication').click(function(){
-        var newField = '<input type="text" name="indication" class="input-indication additional-indication">'
+        var newField = '<input type="text" name="indication" class="form-control input-indication additional-indication">'
                      + '<a class="btn btn-default btn-xs remove-indication">Remove</a><br class="additional-indication">' ;
         $('fieldset#indications').append(newField);
+      });
+      $(".btn-skip").off('click').on('click', function(){
+        var answer = {
+          indications: [],
+          document: task.pdfURL,
+          page: null,
+          skipped: true
+        };
+        $("#viewport_" + task.id).hide();
+        pybossa.saveTask(task.id, answer).done(function(data){
+          deferred.resolve();
+          $("#success").fadeIn();
+          setTimeout(function() { $("#success").fadeOut() }, 2000);
+        })
       });
       $(".btn-submit").off('click').on('click', function(){
         var indications = [];

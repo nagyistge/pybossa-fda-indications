@@ -40,9 +40,9 @@
 
 <div class="row skeleton">
   <div id="question" class="col-md-12">
-    <h1>Transcribe the indications mentioned in the rendered PDFs</h1>
+    <h1>Transcribe the indications mentioned in the PDFs</h1>
     <span class="label label-info"><i class="fa fa-bullhorn"></i> Important</span>
-    <strong>If there are multiple indications to be extracted from the text, please write them one per line.</strong>
+    <strong>If there are multiple indications in the PDF document, please write one indication per line.</strong>
     <hr>
   </div>
 </div>
@@ -51,14 +51,17 @@
   <!-- Answer buttons -->
   <div id="answer" class="col-sm-8" style="text-align:center;">
 
-    <select id="documents-list" class="pull-right">
-    </select>
-    <span class="pull-right text-info"><i>Use this drop down to choose a document to view: &nbsp;</i></span>
+    <span class="pull-right text-info"><i>Use this drop down to choose a document to view</i></span>
+    <div class="row">
+      <div class="col-sm-9">&nbsp;</div>
+      <div class="col-sm-3">
+        <select class="form-control pull-right" id="documents-list"></select>
+      </div>
+    </div>
     <hr>
 
     <!-- <div class="tab-content" id="tabs-content-container"> -->
       <div id="document-container">
-        <p class="text-center text-info"><i>Use the controls below to navigate through the displayed document:</i></p>
         <div class="btn-group-md" style="padding-bottom:5px;">
           <button id="prev" class="btn btn-primary btn-navigate disabled" value="prev"><i class="fa fa-arrow-left"></i></button>
           <button class="btn btn-primary btn-zoom" value=0>1:1</button>
@@ -69,14 +72,13 @@
         <div id="pages" style="margin-top:2%;">
           <p>Page <span id="currentPage">#</span> of <span id="totalPages">#</span></p>
         </div>
-        <p class="text-center text-info"><i>This is a PDF document. These might be scanned versions of labels, letters and other materials. Hint: letters are quite often the best way to start.</i></p>
+        <p class="text-center text-info"><i>This is a PDF document. These might be scanned versions of labels, letters and other materials.</i></p>
       </div>
     <!-- </div> -->
 
   </div>
   <div class="col-sm-4">
 
-    <p class="text-center text-info"><i>Here are several indicators to help you track your progress:</i></p>
     <p>You are working now on task: <span id="task-id" class="label label-warning">#</span></p>
     <p>You have completed: <span id="done" class="label label-info"></span> tasks from
       <span id="total" class="label label-info"></span></p>
@@ -85,21 +87,21 @@
     </div>
     <hr>
     <div>
-      <p class="text-center text-info"><i>Here is the actual form used for submitting answers:</i></p>
-      <h5>Write here the indication(s) found in the document(s), one per line</h5>
+      <p class="text-center text-info"><i>Use this form to submit your indications:</i></p>
+      <h5>Please write only one indication per line.</h5>
+      <h5>If there are multiple indications press "Add another" to add subsequent indicationss.</h5>
+      <h5>To delete an item, use the "Remove" button.</h5>
       <form class="form-inline">
         <input type="hidden" id="hidden-document">
         <input type="hidden" id="hidden-page">
-        <p class="text-center text-info"><i>Write ONE indication in the input box below. If there are multiple additions, press the "Add another" button to generate a new input field for each one of them.</i></p>
-        <p class="text-center text-info"><i>If you want to delete an item, use the "Remove" button generated with every new input field. The first item is mandatory and cannot be deleted.</i></p>
         <fieldset id="indications">
           <input type="text" name="indication" class="input-indication"><br>
         </fieldset>
         <a class="btn btn-default btn-xs add-indication">Add another</a><br>
-        <small><i>Hint: it might be easier to figure out the modified indications from the letter document, if we have it</i></small>
+        <small><i>Hint: We recommend finding new indications mentioned in the letter document, then compare your findings with with the value(s) in the label.</i></small>
       </form>
       <p class="text-center text-info"><i>When you are done, press the "Submit" button.</i></p>
-      <button class="btn btn-submit">Submit</button>
+      <button class="btn btn-submit" disabled>Submit</button>
       <p id="submit-info" class="text-center text-info"></p>
 
     </div>
@@ -255,6 +257,14 @@
         $('#answer').hide();
         $('#taskcompleted').show();
       }
+
+      $('a#start').width(400);
+      $('a#start').css('position', 'absolute');
+      $('a#start').css('z-index', '99');
+      $('a#start').css('left', '50%');
+      $('a#start').css('top', '50px');
+      $('a#start').css('margin-left', '-200px');
+
       var canvas = $("<canvas/>", {"id": "canvas_" + task.id});
       canvas.css("border", "1px solid black");
       var viewport = $("<div/>", {"id": "viewport_" + task.id});
@@ -333,6 +343,13 @@
         $(this).prev().remove();
         $(this).next().remove();
         $(this).remove();
+      });
+      $("fieldset#indications").on('keyup', '.input-indication', function(){
+        if( $(this).val() ) {
+          $('.btn-submit').prop('disabled', false);
+        } else {
+          $('.btn-submit').prop('disabled', true);
+        }
       });
       $('.add-indication').click(function(){
         var newField = '<input type="text" name="indication" class="input-indication additional-indication">'
