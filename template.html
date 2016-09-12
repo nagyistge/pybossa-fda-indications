@@ -1,12 +1,19 @@
 <style type="text/css">
- #the-canvas {
-   cursor: move;
+  #the-canvas {
+    cursor: move;
+  }
+  #question {
+    background-image: url('http://explorer.opentrials.net/assets/images/banner.jpg');
+    background-color: #0095c4;
+    background-position: right -100px;
+    background-repeat: no-repeat;
+    color: #fff;
  }
 </style>
 
-<div class="row">
+<div class="row skeleton" style="margin-top: -30px;">
   <!-- Success and Error Messages for the user --> 
-  <div class="col-md-6 col-md-offset-2" style="height:50px">
+  <div class="col-md-6 col-md-offset-3" style="height:50px">
 
     <div id="success" class="alert alert-success" style="display:none;">
       <a class="close">×</a>
@@ -48,6 +55,7 @@
 </div>
 
 <div class="row skeleton">
+  <br>
   <!-- Answer buttons -->
   <div id="answer" class="col-sm-8" style="text-align:center;">
 
@@ -86,7 +94,7 @@
     <hr>
     <div>
       <h5>Please write only one indication per line.</h5>
-      <h5>If there are multiple indications press "Add another" to add subsequent indicationss.</h5>
+      <h5>If there are multiple indications press "Add another" to add subsequent indications.</h5>
       <h5>To delete an item, use the "Remove" button.</h5>
       <small><i>Hint: We recommend finding new indications mentioned in the letter document, then compare your findings with with the value(s) in the label.</i></small>
       <hr>
@@ -275,7 +283,8 @@
       task.pageNum = task.info.page || 1;
 
       var firstDocuments = ['letter', 'label'];
-      var documentsUnordered = JSON.parse(task.info.documents);
+      console.log(task);
+      var documentsUnordered = task.info.documents;
       task.info.documents = [];
 
       firstDocuments.map(function(v) {
@@ -293,7 +302,7 @@
       });
 
        if (task.info.documents.length > 0) {
-         pdfURL = alterURL(task.info.documents[0].urls[0]);
+         pdfURL = task.info.documents[0].url;
          loadPdf(pdfURL, task, deferred);
        } else {
          deferred.resolve(task);
@@ -320,13 +329,13 @@
       $('#documents-list').html('');
       for (var i=0; i<task.info.documents.length; i++) {
         var doc = task.info.documents[i];
-        var listItem = '<option value="'+doc.urls[0]+'">'+doc.name+'</option>';
+        var listItem = '<option value="'+doc.url+'">'+doc.name+'</option>';
         $('#documents-list').append(listItem);
       }
 
       $('#documents-list').change(function(){
         task.pdfSource = $(this).val();
-        var url = alterURL(task.pdfSource);
+        var url = task.pdfSource;
         loadPdf(url, task);
       });
 

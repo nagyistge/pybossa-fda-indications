@@ -1,6 +1,5 @@
 {
   "name": "OpenTrialsFDA drugs indications",
   "short_name": "opentrials-fda-indications",
-  "description": "Extract drugs indications from PDFs for OpenTrialsFDA",
-  "question": "What are the indications mentioned in the displayed PDF?"
+  "description": "Extract drugs indications from PDFs for OpenTrialsFDA"
 }

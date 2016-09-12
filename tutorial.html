@@ -1,6 +1,13 @@
 <style type="text/css">
- #the-canvas {
-   cursor: move;
+  #the-canvas {
+    cursor: move;
+  }
+  #question {
+    background-image: url('http://explorer.opentrials.net/assets/images/banner.jpg');
+    background-color: #0095c4;
+    background-position: right -100px;
+    background-repeat: no-repeat;
+    color: #fff;
  }
 </style>
 
@@ -93,7 +100,7 @@
     <div>
       <p class="text-center text-info"><i>Use this form to submit your indications:</i></p>
       <h5>Please write only one indication per line.</h5>
-      <h5>If there are multiple indications press "Add another" to add subsequent indicationss.</h5>
+      <h5>If there are multiple indications press "Add another" to add subsequent indications.</h5>
       <h5>To delete an item, use the "Remove" button.</h5>
       <form class="form-inline">
         <input type="hidden" id="hidden-document">
@@ -291,7 +298,7 @@
       console.log(task);
 
       var firstDocuments = ['letter', 'label'];
-      var documentsUnordered = JSON.parse(task.info.documents);
+      var documentsUnordered = task.info.documents;
       task.info.documents = [];
 
       firstDocuments.map(function(v) {
@@ -309,7 +316,7 @@
       });
 
        if (task.info.documents.length > 0) {
-         pdfURL = alterURL(task.info.documents[0].urls[0]);
+         pdfURL = task.info.documents[0].url;
          loadPdf(pdfURL, task, deferred);
        } else {
          deferred.resolve(task);
@@ -327,12 +334,12 @@
       $('#documents-list').html('');
       for (var i=0; i<task.info.documents.length; i++) {
         var doc = task.info.documents[i];
-        var listItem = '<option value="'+doc.urls[0]+'">'+doc.name+'</option>';
+        var listItem = '<option value="'+doc.url+'">'+doc.name+'</option>';
         $('#documents-list').append(listItem);
       }
 
       $('#documents-list').change(function(){
-        var url = alterURL($(this).val());
+        var url = $(this).val();
         loadPdf(url, task);
       });
 
