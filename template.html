@@ -15,6 +15,14 @@
    width: 49%;
  }
 
+ .alert-messages > .alert {
+   position: fixed;
+   top: 0;
+   left: 0;
+   z-index: 99999;
+   width: 100%;
+ }
+
  .viewport {
    width: 100%;
    height: 100%;
@@ -27,34 +35,32 @@
  }
 </style>
 
-<div class="row skeleton" style="margin-top: -30px;">
-  <!-- Success and Error Messages for the user --> 
-  <div class="col-md-6 col-md-offset-3" style="height:50px">
+<!-- Success and Error Messages for the user --> 
+<div class="alert-messages">
 
-    <div id="success" class="alert alert-success" style="display:none;">
-      <a class="close">×</a>
-      <strong>Well done! Your answer has been saved</strong>
-    </div>
-
-    <div id="taskcompleted" class="alert alert-info" style="display:none;">
-      <strong>The task has been completed! Thanks a lot!</strong>
-    </div>
-
-    <div id="finish" class="alert alert-success" style="display:none;">
-      <strong>Congratulations! You have participated in all available tasks!</strong>
-      <br/>
-      <div class="alert-actions">
-        <a class="btn small" href="/">Go back</a>
-        <a class="btn small" href="/project">or, Check other projects</a>
-      </div>
-    </div>
-
-    <div id="error" class="alert alert-danger" style="display:none;">
-      <a class="close">×</a>
-      <strong>Error! Something went wrong, please contact the site administrators</strong>
-    </div>
-
+  <div id="success" class="alert alert-success" style="display:none;">
+    <a class="close">×</a>
+    <strong>Your answer has been saved.</strong>
   </div>
+
+  <div id="taskcompleted" class="alert alert-info" style="display:none;">
+    <strong>The task has been completed. Thank you!</strong>
+  </div>
+
+  <div id="finish" class="alert alert-success" style="display:none;">
+    <strong>All tasks have been completed. Thank you!</strong>
+    <br/>
+    <div class="alert-actions">
+      <a class="btn small" href="/">Go back</a>
+      <a class="btn small" href="/project">or, Check other projects</a>
+    </div>
+  </div>
+
+  <div id="error" class="alert alert-danger" style="display:none;">
+    <a class="close">×</a>
+    <strong>Error! Something went wrong, please try again later.</strong>
+  </div>
+
 </div> <!-- End Success and Error Messages for the user -->
 
 <div class="row skeleton">
