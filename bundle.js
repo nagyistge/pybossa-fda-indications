@@ -305,7 +305,6 @@
       });
     }
     else {
-      $(".skeleton").hide();
       $("#finish").fadeIn();
     }
   });
