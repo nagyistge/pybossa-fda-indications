@@ -146,7 +146,6 @@
       viewport.append(canvas);
       $("#document-container").append(viewport);
 
-
       $('#viewport_' + task.id).dragscrollable({dragSelector:'#canvas_' + task.id});
       task.canvas = document.getElementById('canvas_' + task.id);
       task.ctx = document.getElementById("canvas_" + task.id).getContext('2d');
@@ -154,31 +153,40 @@
       task.pagination = (task.info.page === undefined);
       task.pageNum = task.info.page || 1;
 
-      var firstDocuments = ['letter', 'label'];
+      var documentsOrder = ['letter', 'label'];
+      task.info.documents.sort(function(a, b) {
+        var aName = a.name.toLowerCase();
+        var bName = b.name.toLowerCase();
+			  var aIndex = documentsOrder.indexOf(aName);
+			  var bIndex = documentsOrder.indexOf(bName);
+
+			  if (aIndex == -1 && bIndex == -1) {
+			    return aName.localeCompare(bName);
+			  }
+
+			  if (aIndex == -1) {
+			    return 1;
+			  }
+
+			  if (bIndex == -1) {
+			    return -1;
+			  }
+
+			  if (aIndex > bIndex) {
+			    return 1;
+			  } else {
+			    return -1;
+			  }
+      });
+
       console.log(task);
-      var documentsUnordered = task.info.documents;
-      task.info.documents = [];
 
-      firstDocuments.map(function(v) {
-        documentsUnordered.map(function(doc, index) {
-          if (doc.name.toLowerCase() == v) {
-            task.info.documents.push(doc);
-            documentsUnordered.splice(index, 1);
-            return;
-          }
-        });
-      });
-
-      documentsUnordered.map(function(doc, index) {
-        task.info.documents.push(doc);
-      });
-
-       if (task.info.documents.length > 0) {
-         pdfURL = task.info.documents[0].url;
-         loadPdf(pdfURL, task, deferred);
-       } else {
-         deferred.resolve(task);
-       }
+      if (task.info.documents.length > 0) {
+        pdfURL = task.info.documents[0].url;
+        loadPdf(pdfURL, task, deferred);
+      } else {
+        deferred.resolve(task);
+      }
     } else {
       deferred.resolve(task);
     }
@@ -186,6 +194,8 @@
   });
 
   pybossa.presentTask(function(task, deferred){
+    var form = $('#answer-form');
+
     if ( !$.isEmptyObject(task) ) {
       loadUserProgress();
 
@@ -235,13 +245,13 @@
           return;
         }
       });
-      $("fieldset#indications").on('click', '.remove-indication', function(){
+      $("#indications").on('click', '.remove-indication', function(){
         var index = $(this).parent('div').index();
-        task.indications.splice(index ,1);
-        $(this).parent('div').remove();
+        task.indications.splice(index, 1);
+        $(this).parents('.input-group')[0].remove();
         console.log('Indications changed: ', task.indications);
       });
-      $("fieldset#indications").on('change', '.input-indication', function(){
+      $("#indications").on('change', '.input-indication', function(){
         var index = $(this).parent('div').index();
         task.indications[index] = {
           value: $(this).val(),
@@ -250,7 +260,7 @@
         };
         console.log('Indications changed: ', task.indications);
       });
-      $("fieldset#indications").on('keyup', '.input-indication', function(){
+      $("#indications").on('keyup', '.input-indication', function(){
         if( $(this).val() ) {
           $('.btn-submit').prop('disabled', false);
         } else {
@@ -258,9 +268,15 @@
         }
       });
       $('.add-indication').click(function(){
-        var newField = '<div><input type="text" name="indication" class="form-control input-indication additional-indication">'
-                     + '<a class="btn btn-default remove-indication">Remove</a><br class="additional-indication"></div>' ;
-        $('fieldset#indications').append(newField);
+        var newField = 
+          '<div class="input-group">' +
+             '<input type="text" name="indication" class="form-control input-indication additional-indication">' +
+             '<span class="input-group-btn">' +
+               '<button type="button" class="btn btn-default remove-indication">Remove</button>' +
+               '<br class="additional-indication">' +
+             '</span>' +
+           '</div>';
+        $('#indications').append(newField);
       });
       $(".btn-skip").off('click').on('click', function(){
         var answer = {
@@ -277,7 +293,8 @@
           setTimeout(function() { $("#success").fadeOut() }, 2000);
         })
       });
-      $(".btn-submit").off('click').on('click', function(){
+
+      $(".btn-submit").parents('form').submit(function(){
         var answer = {
             username: username,
             indications: task.indications

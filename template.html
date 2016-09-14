@@ -9,6 +9,18 @@
     background-repeat: no-repeat;
     color: #fff;
  }
+ #indications input,
+ #indications div {
+   width: 100%;
+ }
+
+ #answer-form div {
+   margin-bottom: 1em;
+ }
+
+ .form-controls button {
+   width: 49%;
+ }
 </style>
 
 <div class="row skeleton" style="margin-top: -30px;">
@@ -98,18 +110,20 @@
       <h5>To delete an item, use the "Remove" button.</h5>
       <small><i>Hint: We recommend finding new indications mentioned in the letter document, then compare your findings with with the value(s) in the label.</i></small>
       <hr>
-      <form class="form-inline">
+      <form id="answer-form" class="form-inline">
         <input type="hidden" id="hidden-document">
         <input type="hidden" id="hidden-page">
         <fieldset id="indications">
           <div><input type="text" name="indication" class="form-control input-indication"><br></div>
         </fieldset>
-        <a class="btn btn-default btn-xs add-indication">Add another</a><br>
+        <div>
+          <a class="btn btn-default btn-xs add-indication">Add another</a>
+        </div>
+        <div class="form-controls">
+          <button type="button" class="btn btn-secondary btn-skip">Skip</button>
+          <button type="submit" class="btn btn-primary btn-submit" disabled>Submit</button>
+        </div>
       </form>
-      <p class="text-center">
-        <button class="btn btn-link btn-skip"><small>Skip this task</small></button> <br>
-        <button class="btn btn-submit" disabled>Submit</button>
-      </p>
     </div>
 
   </div>
