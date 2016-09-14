@@ -29,3 +29,7 @@ See the [installation](https://github.com/PyBossa/pbs#installation),
 [configuration](https://github.com/PyBossa/pbs#configuring-pbs) and 
 [usage](https://github.com/PyBossa/pbs#updating-project-templates) info on the 
 project's page.
+
+After installing and configuring `pbs`, if you update any project file you
+should run `pbs update_project` for it to be updated with the latest files. See
+`pbs --help` for more options.
