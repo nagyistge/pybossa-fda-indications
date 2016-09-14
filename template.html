@@ -2,13 +2,6 @@
   #the-canvas {
     cursor: move;
   }
-  #question {
-    background-image: url('http://explorer.opentrials.net/assets/images/banner.jpg');
-    background-color: #0095c4;
-    background-position: right -100px;
-    background-repeat: no-repeat;
-    color: #fff;
- }
  #indications input,
  #indications div {
    width: 100%;
@@ -20,6 +13,17 @@
 
  .form-controls button {
    width: 49%;
+ }
+
+ .viewport {
+   width: 100%;
+   height: 100%;
+   overflow: auto;
+   display: none;
+ }
+
+ .viewport canvas {
+   border: 1px solid black;
  }
 </style>
 
@@ -34,10 +38,6 @@
 
     <div id="taskcompleted" class="alert alert-info" style="display:none;">
       <strong>The task has been completed! Thanks a lot!</strong>
-    </div>
-
-    <div id="loading" class="alert alert-info">
-      <strong>Loading the PDF file...</strong>
     </div>
 
     <div id="finish" class="alert alert-success" style="display:none;">
@@ -61,7 +61,7 @@
   <div id="question" class="col-md-12">
     <h1>Transcribe the indications mentioned in the PDFs</h1>
     <span class="label label-info"><i class="fa fa-bullhorn"></i> Important</span>
-    <strong>If there are multiple indications in the PDF document, please write one indication per line.</strong>
+    <strong>If there are multiple indications in the PDF document, please write one per line.</strong>
     <hr>
   </div>
 </div>
@@ -74,7 +74,7 @@
     <div class="row">
       <div class="col-sm-9">&nbsp;</div>
       <div class="col-sm-3">
-        <select class="form-control pull-right" id="documents-list"></select>
+        <select class="form-control" id="documents-list"></select>
       </div>
     </div>
     <hr>
@@ -90,6 +90,10 @@
         </div>
         <div id="pages" style="margin-top:2%;">
           <p>Page <span id="currentPage">#</span> of <span id="totalPages">#</span></p>
+        </div>
+
+        <div id="loading" class="alert alert-info">
+          <strong>Loading PDF...</strong>
         </div>
       </div>
     <!-- </div> -->
@@ -114,7 +118,7 @@
         <input type="hidden" id="hidden-document">
         <input type="hidden" id="hidden-page">
         <fieldset id="indications">
-          <div><input type="text" name="indication" class="form-control input-indication"><br></div>
+          <div><input type="text" name="indication" placeholder="Indication (e.g. breast cancer)" class="form-control input-indication"><br></div>
         </fieldset>
         <div>
           <a class="btn btn-default btn-xs add-indication">Add another</a>

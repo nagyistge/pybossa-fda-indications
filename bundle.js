@@ -39,7 +39,7 @@
          }
        }
        if (v === 0) {
-         task.scale = 0.8;
+         task.scale = 1;
        }
        var viewport = page.getViewport(task.scale + 0.1);
        task.canvas.height = viewport.height;
@@ -137,19 +137,14 @@
         $('#taskcompleted').show();
       }
       var canvas = $("<canvas/>", {"id": "canvas_" + task.id});
-      canvas.css("border", "1px solid black");
-      var viewport = $("<div/>", {"id": "viewport_" + task.id});
-      viewport.css("width",  "100%");
-      viewport.css("height", "100%");
-      viewport.css("overflow", "auto");
-      viewport.css("display", "none");
+      var viewport = $("<div/>", {id: "viewport_" + task.id, class: 'viewport'});
       viewport.append(canvas);
       $("#document-container").append(viewport);
 
       $('#viewport_' + task.id).dragscrollable({dragSelector:'#canvas_' + task.id});
       task.canvas = document.getElementById('canvas_' + task.id);
-      task.ctx = document.getElementById("canvas_" + task.id).getContext('2d');
-      task.scale = 0.9;
+      task.ctx = task.canvas.getContext('2d');
+      task.scale = 1;
       task.pagination = (task.info.page === undefined);
       task.pageNum = task.info.page || 1;
 
@@ -278,7 +273,7 @@
            '</div>';
         $('#indications').append(newField);
       });
-      $(".btn-skip").off('click').on('click', function(){
+      $(".btn-skip").click(function(){
         var answer = {
           username: username,
           indications: [],
@@ -286,7 +281,7 @@
           page: null,
           skipped: true
         };
-        $("#viewport_" + task.id).hide();
+        $("#viewport_" + task.id).remove();
         pybossa.saveTask(task.id, answer).done(function(data){
           deferred.resolve();
           $("#success").fadeIn();
@@ -294,17 +289,19 @@
         })
       });
 
-      $(".btn-submit").parents('form').submit(function(){
+      $("#answer-form").submit(function(){
         var answer = {
             username: username,
             indications: task.indications
         };
-        $("#viewport_" + task.id).hide();
+        $("#viewport_" + task.id).remove();
         pybossa.saveTask(task.id, answer).done(function(data){
           deferred.resolve();
           $("#success").fadeIn();
           setTimeout(function() { $("#success").fadeOut() }, 2000);
         })
+
+        return false;
       });
     }
     else {
