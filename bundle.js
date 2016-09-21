@@ -112,11 +112,6 @@
      }
    }
 
-  function alterURL(url) {
-    var pdfURL = url.split('/').pop(); // Hack to overcome 3rd party CORS restrictions
-    return 'http://51.255.66.26/opentrials/indications_docs/' + pdfURL;
-  }
-
   function loadPdf(pdfURL, task, deferred) {
     PDFJS.getDocument(pdfURL).then(function getPdfHelloWorld(_pdfDoc) {
       task.pdfURL = pdfURL;
@@ -149,6 +144,7 @@
       task.pageNum = task.info.page || 1;
 
       var documentsOrder = ['letter', 'label'];
+      console.log(task.info);
       task.info.documents.sort(function(a, b) {
         var aName = a.name.toLowerCase();
         var bName = b.name.toLowerCase();
