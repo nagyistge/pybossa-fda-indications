@@ -1,0 +1,68 @@
+<style type="text/css">
+ .alert-messages > .alert {
+   position: fixed;
+   top: 0;
+   left: 0;
+   z-index: 99999;
+   width: 100%;
+ }
+
+ .row {
+   padding-bottom: 1em;
+ }
+</style>
+
+<!-- Success and Error Messages for the user --> 
+<div class="alert-messages">
+
+  <div id="success" class="alert alert-success" style="display:none;">
+    <a class="close">×</a>
+    <strong>Your answer has been saved.</strong>
+  </div>
+
+  <div id="taskcompleted" class="alert alert-info" style="display:none;">
+    <strong>The task has been completed. Thank you!</strong>
+  </div>
+
+  <div id="finish" class="alert alert-success" style="display:none;">
+    <strong>All tasks have been completed. Thank you!</strong>
+  </div>
+
+  <div id="error" class="alert alert-danger" style="display:none;">
+    <a class="close">×</a>
+    <strong>Error! Something went wrong, please try again later.</strong>
+  </div>
+
+</div> <!-- End Success and Error Messages for the user -->
+
+<div class="row">
+  <div id="question" class="col-md-12">
+    <h1>Are the following trials the same?</h1>
+  </div>
+</div>
+
+<div class="row">
+  <section id="tasks">
+    Loading...
+  </section>
+</div>
+
+<div class="row">
+  <div class="btn-group btn-block">
+  <button type="button" name="result" value="yes" class="btn btn-block btn-success">Yes</button>
+  <button type="button" name="result" value="no" class="btn btn-block btn-danger">No</button>
+  <button type="button" name="result" value="unsure" class="btn btn-block btn-default">I'm not sure</button>
+  </div>
+</div>
+
+<div class="row">
+    <p>You have completed: <span id="done" class="label label-info"></span> tasks of
+      <span id="total" class="label label-info"></span></p>
+    <div class="progress progress-striped">
+      <div id="progress" rel="tooltip" title="#" class="progress-bar" style="width: 0%;" role="progressbar"></div>
+    </div>
+</div>
+
+<script src="http://code.jquery.com/ui/1.9.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-cookie/2.1.2/js.cookie.min.js"></script>
+<script src="/static/js/pybossa/pybossa.js" type="text/javascript"></script>
