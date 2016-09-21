@@ -237,18 +237,24 @@
         }
       });
       $("#indications").on('click', '.remove-indication', function(){
-        var index = $(this).parent('div').index();
+        var index = $(this).parents('div').index();
         task.indications.splice(index, 1);
         $(this).parents('.input-group')[0].remove();
         console.log('Indications changed: ', task.indications);
       });
       $("#indications").on('change', '.input-indication', function(){
         var index = $(this).parent('div').index();
-        task.indications[index] = {
-          value: $(this).val(),
-          document: task.pdfSource,
-          page: task.pageNum
-        };
+        var value = $(this).val();
+
+        if (value) {
+          task.indications[index] = {
+            value: value,
+            document: task.pdfSource,
+            page: task.pageNum
+          };
+        } else {
+          task.indications[index] = undefined;
+        }
         console.log('Indications changed: ', task.indications);
       });
       $("#indications").on('keyup', '.input-indication', function(){
@@ -258,7 +264,7 @@
           $('.btn-submit').prop('disabled', true);
         }
       });
-      $('.add-indication').click(function(){
+      $('.add-indication').unbind('click').click(function(){
         var newField = 
           '<div class="input-group">' +
              '<input type="text" name="indication" class="form-control input-indication additional-indication">' +
@@ -268,6 +274,7 @@
              '</span>' +
            '</div>';
         $('#indications').append(newField);
+        task.indications.push(undefined);
       });
       $(".btn-skip").click(function(){
         var answer = {
@@ -288,7 +295,7 @@
       $("#answer-form").submit(function(){
         var answer = {
             username: username,
-            indications: task.indications
+            indications: task.indications.filter(function (ind) { return ind !== undefined; }),
         };
         $("#viewport_" + task.id).remove();
         pybossa.saveTask(task.id, answer).done(function(data){
