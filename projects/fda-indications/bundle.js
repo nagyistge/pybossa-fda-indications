@@ -144,7 +144,6 @@
       task.pageNum = task.info.page || 1;
 
       var documentsOrder = ['letter', 'label'];
-      console.log(task.info);
       task.info.documents.sort(function(a, b) {
         var aName = a.name.toLowerCase();
         var bName = b.name.toLowerCase();
@@ -169,8 +168,6 @@
 			    return -1;
 			  }
       });
-
-      console.log(task);
 
       if (task.info.documents.length > 0) {
         pdfURL = task.info.documents[0].url;
@@ -240,7 +237,6 @@
         var index = $(this).parents('div').index();
         task.indications.splice(index, 1);
         $(this).parents('.input-group')[0].remove();
-        console.log('Indications changed: ', task.indications);
       });
       $("#indications").on('change', '.input-indication', function(){
         var index = $(this).parent('div').index();
@@ -255,7 +251,6 @@
         } else {
           task.indications[index] = undefined;
         }
-        console.log('Indications changed: ', task.indications);
       });
       $("#indications").on('keyup', '.input-indication', function(){
         if( $(this).val() ) {
