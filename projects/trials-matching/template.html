@@ -1,4 +1,8 @@
 <style type="text/css">
+  #tasks iframe {
+    height: 500px;
+    width: 100%;
+  }
  .alert-messages > .alert {
    position: fixed;
    top: 0;
@@ -9,6 +13,15 @@
 
  .row {
    padding-bottom: 1em;
+ }
+
+ .responses .btn-danger {
+   background-color: #EE7147;
+   color: #FFF;
+ }
+
+ .responses {
+   width: 50%;
  }
 </style>
 
@@ -41,17 +54,15 @@
   </div>
 </div>
 
-<div class="row">
-  <section id="tasks">
-    Loading...
-  </section>
-</div>
+<section id="tasks" class="row">
+  Loading...
+</section>
 
 <div class="row">
-  <div class="btn-group btn-block">
-  <button type="button" name="result" value="yes" class="btn btn-block btn-success">Yes</button>
-  <button type="button" name="result" value="no" class="btn btn-block btn-danger">No</button>
-  <button type="button" name="result" value="unsure" class="btn btn-block btn-default">I'm not sure</button>
+  <div class="btn-group btn-block center-block responses">
+    <button type="button" name="result" value="yes" class="btn btn-block btn-primary">Yes</button>
+    <button type="button" name="result" value="no" class="btn btn-block btn-danger">No</button>
+    <button type="button" name="result" value="unsure" class="btn btn-block btn-default">I'm not sure</button>
   </div>
 </div>
 

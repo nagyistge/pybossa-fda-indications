@@ -28,10 +28,14 @@
   pybossa.taskLoaded(function(task, deferred){
     if (!$.isEmptyObject(task)) {
       var taskHtml = (
-        '<ul>' +
-            '<li><a href="{trial1_url}" target="_blank">{trial1_url}</a></li>' +
-            '<li><a href="{trial2_url}" target="_blank">{trial2_url}</a></li>' +
-        '</ul>'
+        '<div class="col-md-6">' +
+          '<iframe src="{trial1_url}"></iframe>' +
+          '<span><a href="{trial1_url}" target="_blank">{trial1_url}</a></span>' +
+        '</div>' +
+        '<div class="col-md-6">' +
+          '<iframe src="{trial2_url}"></iframe>' +
+          '<span><a href="{trial2_url}" target="_blank">{trial2_url}</a></span>' +
+        '</div>'
       ).replace(/{trial1_url}/g, generateUrl(task.info.trial1_id))
        .replace(/{trial2_url}/g, generateUrl(task.info.trial2_id));
 
